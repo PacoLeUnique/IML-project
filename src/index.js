@@ -1,6 +1,10 @@
 import '@marcellejs/core/dist/marcelle.css';
 import * as marcelle from '@marcellejs/core';
 
+
+const imageUpload = marcelle.imageUpload({width:224, height:224});
+let imageDisplay = marcelle.imageDisplay(imageUpload.$images);
+
 const myDashboard = marcelle.dashboard({
 	title: 'My First Tutorial',
 	author: 'Myself',
@@ -16,6 +20,8 @@ label.title = 'Instance label';
 const capture = marcelle.button('Click to record an instance');
 capture.title = 'Capture instances to the training set';
 
+
+
 const store = marcelle.dataStore('localStorage');
 const trainingSet = marcelle.dataset('TrainingSet', store);
 
@@ -26,28 +32,21 @@ const trainingButton = marcelle.button('Train');
 
 const plotTraining = marcelle.trainingPlot(classifier);
 
-input.$images
-	.filter(() => capture.$pressed.get())
-  	.map(async (img) => ({
-    	x: await featureExtractor.process(img),
-    	thumbnail: input.$thumbnails.get(),
-    	y: label.$value.get(),
-  }))
-  .awaitPromises()
-  .subscribe(trainingSet.create);
-
 label.$value.subscribe((currentInput) => {
 console.log('currentInput:', currentInput);
 });
 
+
 const $instances = capture.$click
-.sample(input.$images)
+.sample(imageUpload.$images)
 .map(async (img) => ({
 x: await featureExtractor.process(img),
 y: label.$value.get(),
-thumbnail: input.$thumbnails.get(),
+thumbnail: imageUpload.$thumbnails.get(),
 }))
 .awaitPromises();
+
+
 
 const $predictions = input.$images
   .map(async (img) => {
@@ -61,7 +60,7 @@ const predViz = marcelle.confidencePlot($predictions);
 $predictions.subscribe(console.log);
 
 
-
+//Bouton pour train le modele 
 trainingButton.$click.subscribe(() => {
 	classifier.train(trainingSet);
 });
@@ -69,9 +68,11 @@ trainingButton.$click.subscribe(() => {
 $instances.subscribe(trainingSet.create);
 
 
+/// AFFICHAGE DES PAGES 
 
 myDashboard.page('Data Management')
-	.sidebar(input, featureExtractor)
+	.sidebar(imageDisplay, featureExtractor)
+	.use(imageUpload)
 	.use([label, capture], trainingSetBrowser, trainingButton)
 	.use(plotTraining);
 
