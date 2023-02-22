@@ -12,7 +12,8 @@
     "build": "vite build"
   },
   "dependencies": {
-    "@marcellejs/core": "^0.6.0"
+    "@marcellejs/core": "^0.6.0",
+    "crop-image-data": "^1.0.2"
   },
   "devDependencies": {
     "@marcellejs/design-system": "^0.6.0",
