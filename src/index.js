@@ -3,14 +3,18 @@ import * as marcelle from '@marcellejs/core';
 
 
 const imageUpload = marcelle.imageUpload({width:224, height:224});
-let imageDisplay = marcelle.imageDisplay(imageUpload.$images);
+const imageDisplay = marcelle.imageDisplay(imageUpload.$images);
+
+const imageUploadEvaluation = marcelle.imageUpload({width:224, height:224});
+const imageDisplayEvaluation = marcelle.imageDisplay(imageUploadEvaluation.$images);
+
+const imageUploadCrop = marcelle.imageUpload({width:224, height:224});
+const imageDisplayCrop = marcelle.imageDisplay(imageUploadCrop.$images);
 
 const myDashboard = marcelle.dashboard({
 	title: 'My First Tutorial',
 	author: 'Myself',
   });
-
-const input = marcelle.webcam();
 
 const featureExtractor = marcelle.mobileNet();
 
@@ -48,7 +52,7 @@ thumbnail: imageUpload.$thumbnails.get(),
 
 
 
-const $predictions = input.$images
+const $predictions = imageUploadEvaluation.$images
   .map(async (img) => {
     const features = await featureExtractor.process(img);
     return classifier.predict(features);
@@ -68,6 +72,14 @@ trainingButton.$click.subscribe(() => {
 $instances.subscribe(trainingSet.create);
 
 
+// Slider 
+
+const sliderCropX = marcelle.slider({min: 1, max: 9, step: 1, pips:true, pipstep:4});
+sliderCropX.title = "number of X divisions"; 
+const sliderCropY = marcelle.slider({min: 1, max: 9, step: 1, pips:true, pipstep:4});
+sliderCropY.title = "number of Y divisions"; 
+
+
 /// AFFICHAGE DES PAGES 
 
 myDashboard.page('Data Management')
@@ -76,6 +88,16 @@ myDashboard.page('Data Management')
 	.use([label, capture], trainingSetBrowser, trainingButton)
 	.use(plotTraining);
 
-myDashboard.page('Direct Evaluation').sidebar(input).use(predViz);
+myDashboard.page('Direct Evaluation')
+	.sidebar(imageDisplayEvaluation)
+	.use(imageUploadEvaluation)
+	.use(predViz);
+
+myDashboard.page("Crop analysis")
+	.sidebar(imageDisplayCrop)
+		.use(imageUploadCrop)
+		.use([sliderCropX, sliderCropY])
+		.use(imageDisplayCrop);
 
 myDashboard.show();
+	
