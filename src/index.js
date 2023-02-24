@@ -3,6 +3,11 @@ import * as marcelle from '@marcellejs/core';
 import { cropImage } from './cropImage.mjs';
 import { getBase64FromImageData } from './getBase64FromImageData.mjs';
 
+const myDashboard = marcelle.dashboard({
+	title: 'Paint Expert',
+	author: 'Group 13',
+  });
+
 
 // Tous les imageUpload et imageDisplay
 const imageUpload = marcelle.imageUpload({width:224, height:224});
@@ -14,10 +19,7 @@ const imageDisplayEvaluation = marcelle.imageDisplay(imageUploadEvaluation.$imag
 const imageUploadCrop = marcelle.imageUpload({width:224, height:224});
 const imageDisplayCrop = marcelle.imageDisplay(imageUploadCrop.$images);
 
-const myDashboard = marcelle.dashboard({
-	title: 'Paint Expert',
-	author: 'Group 13',
-  });
+
 
 const featureExtractor = marcelle.mobileNet();
 
@@ -42,6 +44,10 @@ const trainingSetTable = marcelle.datasetTable(trainingSetCrop, ['y', 'thumbnail
 trainingSetTable.title = "cropped images";
 
 const classifier = marcelle.mlpClassifier({ layers: [32, 32], epochs: 20 });
+
+//Crop prediction visualisation
+const cropPredViz = marcelle.batchPrediction("mlp", storeCrop);
+const confusionMatrix = marcelle.confusionMatrix(cropPredViz);
 
 //Tous les boutons
 const trainingButton = marcelle.button('Train');
@@ -121,12 +127,12 @@ addCropButton.$click.subscribe(() =>{
 });
 
 //prediction des crop
-let $predictionsCrop = null;
 predictCrops.$click.subscribe(()=> {
 	const features = trainingSetCrop.items();
 	console.log("features :", features);
 
-//	classifier.predict(features);
+	cropPredViz.clear();
+	cropPredViz.predict(classifier, trainingSetCrop);
 });
 
 //const predVizCrop = marcelle.confidencePlot($predictionsCrop);
@@ -155,8 +161,8 @@ myDashboard.page("Crop analysis")
 		.use([sliderCropX, sliderCropY])
 		.use([labelCrop, addCropButton])
 		.use(trainingSetTable)
-		.use(predictCrops);
-//		.use(predVizCrop);;
+		.use(predictCrops)
+		.use(confusionMatrix);
 
 myDashboard.show();
 	
