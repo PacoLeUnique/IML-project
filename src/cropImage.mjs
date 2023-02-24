@@ -18,7 +18,10 @@ export function cropImage(image, X, Y){
                                                 bottom: heightOfOnePiece * (Y - (y+1)),
                                                 left:   widthOfOnePiece * x , 
                                                 right:  widthOfOnePiece * (X - (x+1))});
-            imagePieces.push(piece);
+            const binaryPiece = piece.data;
+            const base64Piece = btoa(binaryPiece);
+            
+            imagePieces.push({"image" : piece, "thumbnail": base64Piece});
         }
     }
     

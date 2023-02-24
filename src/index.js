@@ -104,7 +104,9 @@ sliderCropX.$values.subscribe((x) => {sliderXValue = x; } );
 sliderCropY.$values.subscribe((y) => {sliderYValue = y; } );
 
 let imageDataCrop = null;
+let imageThumbnailsCrop = null;
 imageUploadCrop.$images.subscribe((x)=> {imageDataCrop = x;});
+imageUploadCrop.$thumbnails.subscribe((x)=> {imageThumbnailsCrop = x;});
 
 //Bouton add a cropped image
 addCropButton.$click.subscribe(() =>{
@@ -115,9 +117,9 @@ addCropButton.$click.subscribe(() =>{
 
 	const croppedImages = cropImage(imageDataCrop, sliderXValue, sliderYValue);
 	const instancesCrop = croppedImages.map((img) => ({
-		x: img,
-		y: labelCrop.$value.get(),
-		thumbnail: getBase64FromImageData(img)
+		x: img.image,
+		y: labelCrop.$value.get() + " crop",
+		thumbnail: imageThumbnailsCrop
 	}));
 	console.log(instancesCrop);
 
